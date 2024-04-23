@@ -8,6 +8,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TourPlanner.BL;
+using TourPlanner.DAL;
+using TourPlanner.UI;
 
 namespace Tourplanner
 {
@@ -19,6 +22,10 @@ namespace Tourplanner
         public MainWindow()
         {
             InitializeComponent();
+
+            var dbContext = new AppDbContext();
+            DataContext = new MainViewModel(dbContext);
+
         }
     }
 }

@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Tourplanner"
+        xmlns:local="clr-namespace:Tourplanner" 
+        xmlns:local1="clr-namespace:TourPlanner.UI"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel LastChildFill="True">
@@ -35,50 +36,80 @@
 
         <!-- Main Content -->
         <Grid>
-            <!-- Left Pane: Tours List -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <ListBox Grid.Column="0" x:Name="ToursListBox" Margin="5">
-                <!-- Sample data -->
-                <ListBoxItem>Wienerwald</ListBoxItem>
-                <ListBoxItem>Dopplerhütte</ListBoxItem>
-                <ListBoxItem>FiglHarte</ListBoxItem>
-                <ListBoxItem>Dorfunde</ListBoxItem>
-            </ListBox>
+            <!-- Left Pane: Tours List -->
+            <local1:ActionToolbar Grid.Column="0" Grid.Row="0"
+                LabelText="Tour"
+                AddCommand="{Binding AddTourCommand}"
+                DeleteCommand="{Binding DeleteTourCommand}"
+                ModifyCommand="{Binding ModifyTourCommand}"/>
+
+            <ListBox Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" x:Name="ToursListBox" Margin="5"
+             ItemsSource="{Binding Tours}"
+             DisplayMemberPath="Name"
+             SelectedItem="{Binding SelectedTour, Mode=TwoWay}"/>
 
             <!-- Right Pane: Tour Details and Logs -->
-            <StackPanel Grid.Column="1" Orientation="Vertical">
+            <Grid Grid.Column="1" Grid.RowSpan="2">
                 <!-- Tabs for Tour Details -->
                 <TabControl>
                     <TabItem Header="General">
                         <!-- Content for the General tab -->
                     </TabItem>
                     <TabItem Header="Route">
-                        <!-- Fixed size Image -->
                         <Border Width="300" Height="200" Background="LightGray">
-                            <Image Source="YourImagePath.png" Stretch="Uniform"/>
+                            <!-- <Image Source="{Binding SelectedTour.RouteInformationImagePath}" Stretch="Uniform"/> -->
                         </Border>
                     </TabItem>
                     <TabItem Header="Misc">
                         <!-- Content for the Misc tab -->
                     </TabItem>
                 </TabControl>
+            </Grid>
 
-                <!-- Tour Logs Section -->
-                <Expander Header="Tour Logs" IsExpanded="True">
-                    <DataGrid x:Name="TourLogsDataGrid">
-                        <!-- Columns for the Tour Logs DataGrid -->
+            <Grid Grid.Column="1" Grid.Row="3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <local1:ActionToolbar Grid.Column="0" Grid.Row="0"
+                        LabelText="Tour Logs"
+                        AddCommand="{Binding AddTourLogsCommand}"
+                        DeleteCommand="{Binding DeleteTourLogsCommand}"
+                        ModifyCommand="{Binding ModifyTourLogsCommand}"/>
+
+                    <!-- Tour Logs Section -->
+                    <DataGrid Grid.Row="1"
+                        ItemsSource="{Binding TourLogs}"
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        GridLinesVisibility="None"
+                        IsReadOnly="True"
+                        AlternationCount="2"
+                        RowBackground="White"
+                        AlternatingRowBackground="LightGray">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Date" Binding="{Binding Date}"/>
-                            <DataGridTextColumn Header="Duration" Binding="{Binding Duration}"/>
+                            <DataGridTextColumn Header="Comment" Binding="{Binding Comment}"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding DateTime}"/>
+                            <DataGridTextColumn Header="Duration" Binding="{Binding TotalTime}"/>
                             <DataGridTextColumn Header="Distance" Binding="{Binding Distance}"/>
+                            <DataGridTextColumn Header="Rating" Binding="{Binding Rating}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                </Expander>
-            </StackPanel>
+                </Grid>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>

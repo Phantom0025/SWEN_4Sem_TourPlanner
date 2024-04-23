@@ -18,7 +18,8 @@ namespace Tourplanner.DAL.Entities
         public int TourId { get; set; }
 
         [ForeignKey("TourId")]
-        public required virtual Tour Tour { get; set; }
+        [Required]
+        public virtual Tour Tour { get; set; }
 
         public DateTime DateTime { get; set; }
 
@@ -26,7 +27,7 @@ namespace Tourplanner.DAL.Entities
 
         public int Difficulty { get; set; }
 
-        public double Distance { get; set; }
+        public double TotalDistance { get; set; }
 
         public TimeSpan TotalTime { get; set; }
 

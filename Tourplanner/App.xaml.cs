@@ -22,6 +22,7 @@ namespace Tourplanner
 
         public App()
         {
+            InitializeLogger();
             ServiceCollection services = new ServiceCollection();
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();
@@ -30,38 +31,25 @@ namespace Tourplanner
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            InitializeDatabase();
+        }
 
-            InitializeLogger();
-
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            _serviceProvider = serviceCollection.BuildServiceProvider();
-
-            // Optional: Directly interact with DbContext to initialize or validate connection
+        private void InitializeDatabase()
+        {
             using (var scope = _serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                // You can force initialization here if needed
+                dbContext.Database.EnsureDeleted();
+                log.Info("Database deleted successfully.");
                 dbContext.Database.EnsureCreated();
+                log.Info("Database created successfully.");
             }
-
-            var mainWindow = _serviceProvider.GetService<MainWindow>();
-            mainWindow.Show();
         }
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                var connectionString = Environment.GetEnvironmentVariable("TOURPLANNER_DB_CONNECTION");
-                if (string.IsNullOrEmpty(connectionString))
-                {
-                    throw new InvalidOperationException("Connection string is not defined in environment variables.");
-                }
-                options.UseNpgsql(connectionString);
-            });
-
-            services.AddTransient<MainWindow>(); // Ensure MainWindow can be resolved through DI
+            services.AddDbContext<AppDbContext>();
+            services.AddTransient<MainWindow>();
         }
 
         private void InitializeLogger()
