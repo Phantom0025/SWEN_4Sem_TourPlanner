@@ -54,9 +54,7 @@ namespace TourPlanner.BL
             if (tour == null)
                 return false;
 
-            tour.Name = updatedTour.Name;
-            tour.Description = updatedTour.Description;
-            // other properties
+            tour = updatedTour;
 
             _dbContext.SaveChanges();
             return true;

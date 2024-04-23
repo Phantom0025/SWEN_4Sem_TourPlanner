@@ -12,7 +12,7 @@ namespace TourPlanner.BL
     {
         void AddTourLog(TourLog tourLog);
         bool DeleteTourLog(int tourLogId);
-        bool UpdateTourLog(TourLog tourLog);
+        bool ModifyTourLog(TourLog tourLog);
         List<TourLog> GetTourLogsByTourId(int tourId);
     }
 
@@ -45,16 +45,13 @@ namespace TourPlanner.BL
             return true;
         }
 
-        public bool UpdateTourLog(TourLog tourLog)
+        public bool ModifyTourLog(TourLog updatedTourLog)
         {
-            var existingTourLog = _dbContext.TourLogs.FirstOrDefault(tl => tl.TourLogId == tourLog.TourLogId);
-            if (existingTourLog == null)
+            var tourLog = _dbContext.TourLogs.FirstOrDefault(tl => tl.TourLogId == updatedTourLog.TourLogId);
+            if (tourLog == null)
                 return false;
 
-            existingTourLog.Comment = tourLog.Comment;
-            existingTourLog.DateTime = tourLog.DateTime;
-            existingTourLog.Rating = tourLog.Rating;
-            // Update other fields as necessary
+            tourLog = updatedTourLog;
 
             _dbContext.SaveChanges();
             return true;
