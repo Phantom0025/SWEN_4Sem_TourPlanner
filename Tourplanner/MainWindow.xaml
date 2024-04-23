@@ -4,9 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tourplanner" 
-        xmlns:local1="clr-namespace:TourPlanner.UI"
+        xmlns:vm="clr-namespace:TourPlanner.UI" d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
     <DockPanel LastChildFill="True">
         <!-- Top Menu Bar -->
         <Menu DockPanel.Dock="Top">
@@ -48,11 +64,15 @@
             </Grid.ColumnDefinitions>
 
             <!-- Left Pane: Tours List -->
-            <local1:ActionToolbar Grid.Column="0" Grid.Row="0"
-                LabelText="Tour"
-                AddCommand="{Binding AddTourCommand}"
-                DeleteCommand="{Binding DeleteTourCommand}"
-                ModifyCommand="{Binding ModifyTourCommand}"/>
+            <Grid>
+                <TextBlock Grid.Column="1" Text="Tours" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="16" FontWeight="Bold"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Command="{Binding AddTourCommand}" Content="+" ToolTip="Add" Style="{StaticResource ActionButtonStyle}" />
+                    <Button Command="{Binding DeleteTourCommand}" Content="-" ToolTip="Delete" Style="{StaticResource ActionButtonStyle}" />
+                    <Button Command="{Binding ModifyTourCommand}" Content="..." ToolTip="Modify" Style="{StaticResource ActionButtonStyle}" />
+                </StackPanel>
+            </Grid>
 
             <ListBox Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" x:Name="ToursListBox" Margin="5"
              ItemsSource="{Binding Tours}"
@@ -84,12 +104,15 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <local1:ActionToolbar Grid.Column="0" Grid.Row="0"
-                        LabelText="Tour Logs"
-                        AddCommand="{Binding AddTourLogsCommand}"
-                        DeleteCommand="{Binding DeleteTourLogsCommand}"
-                        ModifyCommand="{Binding ModifyTourLogsCommand}"/>
+                    <Grid>
+                        <TextBlock Grid.Column="1" Text="Tour Logs" VerticalAlignment="Center" Margin="5,0,0,0" FontSize="16" FontWeight="Bold"/>
 
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Command="{Binding AddCommand}" Content="+" ToolTip="Add" Style="{StaticResource ActionButtonStyle}" />
+                            <Button Command="{Binding DeleteTourLog}" Content="-" ToolTip="Delete" Style="{StaticResource ActionButtonStyle}" />
+                            <Button Command="{Binding ModifyTourLog}" Content="..." ToolTip="Modify" Style="{StaticResource ActionButtonStyle}" />
+                        </StackPanel>
+                    </Grid>
                     <!-- Tour Logs Section -->
                     <DataGrid Grid.Row="1"
                         ItemsSource="{Binding TourLogs}"

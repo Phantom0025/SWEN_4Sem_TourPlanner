@@ -1,16 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NLog;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Tourplanner.DAL.Entities;
 using TourPlanner.BL;
 using TourPlanner.DAL;
-using static TourPlanner.BL.TourService;
 
 namespace TourPlanner.UI
 {
@@ -21,20 +17,24 @@ namespace TourPlanner.UI
         private ObservableCollection<TourLog> _tourLogs;
         private static Logger log = LogManager.GetCurrentClassLogger();
 
-        private TourService _tourService;
-        private TourLogService _tourLogService;
+        private ITourService _tourService;
+        private ITourLogService _tourLogService;
 
         public ICommand AddTourCommand { get; private set; }
         public ICommand DeleteTourCommand { get; private set; }
         public ICommand ModifyTourCommand { get; private set; }
 
-        public MainViewModel(AppDbContext dbContext)
+        public ICommand AddTourLogCommand { get; private set; }
+        public ICommand DeleteTourLogCommand { get; private set; }
+        public ICommand ModifyTourLogCommand { get; private set; }
+
+        public MainViewModel(AppDbContext dbContext, ITourService tourService, ITourLogService tourLogService)
         {
             _dbContext = dbContext;
             Tours = new ObservableCollection<Tour>(_dbContext.Tours.Include(t => t.TourLogs).ToList());
 
-            _tourService = new TourService(dbContext);
-            //_tourLogService = new TourLogService(dbContext);
+            _tourService = tourService;
+            _tourLogService = tourLogService;
 
             AddTourCommand = new RelayCommand(AddTourExecute);
             DeleteTourCommand = new RelayCommand(DeleteTourExecute);
@@ -43,22 +43,46 @@ namespace TourPlanner.UI
 
         private void AddTourExecute(object parameter)
         {
-            Tour tour = parameter as Tour;
-            _tourService.AddTour(tour);
+            TourDialog dialog = new TourDialog();
+            var result = dialog.ShowDialog();
+            if (result == true)
+            {
+                Tour newTour = dialog.Result;
+                _tourService.AddTour(newTour);
+                Tours.Add(newTour);
+            }
+            else
+            {
+                // Handle dialog close with cancel or close
+            }
         }
 
         private void DeleteTourExecute(object parameter)
         {
-            int tourId = (int)parameter;
-            _tourService.DeleteTour(tourId);
+            if (SelectedTour != null)
+            {
+                _tourService.DeleteTour(SelectedTour.TourId);
+                Tours.Remove(SelectedTour);
+            }
         }
 
         private void ModifyTourExecute(object parameter)
         {
-            Tour updatedTour = parameter as Tour;
-            _tourService.ModifyTour(updatedTour);
+            if (SelectedTour != null)
+            {
+                TourDialog dialog = new TourDialog(SelectedTour);
+                var result = dialog.ShowDialog();
+                if (result == true)
+                {
+                    _tourService.ModifyTour(dialog.Result);
+                    Tours[Tours.IndexOf(SelectedTour)] = dialog.Result;
+                }
+                else
+                {
+                    // Handle dialog close with cancel or close
+                }
+            }
         }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -1,0 +1,30 @@
+﻿<Window x:Class="TourPlanner.UI.TourDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TourPlanner.UI"
+        mc:Ignorable="d"
+        Title="TourDialog" Height="350" Width="300">
+    <StackPanel Margin="10">
+        <Label Content="Tour Name"/>
+        <TextBox x:Name="txtName"/>
+
+        <Label Content="Description"/>
+        <TextBox x:Name="txtDescription" TextWrapping="Wrap"/>
+
+        <Label Content="From"/>
+        <TextBox x:Name="txtFrom"/>
+
+        <Label Content="To"/>
+        <TextBox x:Name="txtTo"/>
+
+        <Label Content="Transport Type"/>
+        <TextBox x:Name="txtTransportType"/>
+
+        <StackPanel Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Center">
+            <Button x:Name="AddButton" Content="Add" Margin="5" Click="AddButton_Click"/>
+            <Button Content="Cancel" Margin="5" Click="CancelButton_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

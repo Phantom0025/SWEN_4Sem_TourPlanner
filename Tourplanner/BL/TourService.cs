@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,19 @@ using TourPlanner.DAL;
 
 namespace TourPlanner.BL
 {
-    public class TourService
+    public interface ITourService
     {
-        private readonly AppDbContext _dbContext;  // Context for Entity Framework
+        void AddTour(Tour tour);
+        bool DeleteTour(int tourId);
+        bool ModifyTour(Tour updatedTour);
+        List<Tour> GetAllTours();
+    }
+
+    public class TourService : ITourService
+    {
+        private readonly AppDbContext _dbContext;
+
+        private static Logger log = LogManager.GetCurrentClassLogger();
 
         public TourService(AppDbContext dbContext)
         {
@@ -45,8 +56,7 @@ namespace TourPlanner.BL
 
             tour.Name = updatedTour.Name;
             tour.Description = updatedTour.Description;
-            tour.From = updatedTour.From;
-            tour.To = updatedTour.To;
+            // other properties
 
             _dbContext.SaveChanges();
             return true;

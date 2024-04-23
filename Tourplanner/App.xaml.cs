@@ -9,6 +9,7 @@ using NLog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using TourPlanner.DAL;
+using TourPlanner.BL;
 
 namespace Tourplanner
 {
@@ -50,6 +51,9 @@ namespace Tourplanner
         {
             services.AddDbContext<AppDbContext>();
             services.AddTransient<MainWindow>();
+
+            services.AddScoped<ITourService, TourService>();
+            services.AddScoped<ITourLogService, TourLogService>();
         }
 
         private void InitializeLogger()

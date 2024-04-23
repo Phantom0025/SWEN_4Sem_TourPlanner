@@ -24,7 +24,9 @@ namespace Tourplanner
             InitializeComponent();
 
             var dbContext = new AppDbContext();
-            DataContext = new MainViewModel(dbContext);
+            ITourService tourService = new TourService(dbContext);
+            ITourLogService tourLogService = new TourLogService(dbContext);
+            DataContext = new MainViewModel(dbContext, tourService, tourLogService);
 
         }
     }
