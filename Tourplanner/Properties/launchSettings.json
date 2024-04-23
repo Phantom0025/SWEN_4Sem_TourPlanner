@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TourPlanner": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DATABASE_CONNECTION": "Host=localhost;Database=tourplanner;Username=postgres;Password=123",
+        "BASE_DIR": "C:\\Users\\Manuel\\Documents\\GitHub\\VERTS_4Sem\\Tourplanner\\"
+      }
+    }
+  }
+}

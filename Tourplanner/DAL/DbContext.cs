@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tourplanner;
 using Tourplanner.DAL.Entities;
 
 namespace TourPlanner.DAL
@@ -17,11 +19,23 @@ namespace TourPlanner.DAL
         public DbSet<Tour> Tours { get; set; }
         public DbSet<TourLog> TourLogs { get; set; }
 
+        private static Logger log = LogManager.GetCurrentClassLogger();
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Replace these with your actual connection string and settings
-            optionsBuilder.UseNpgsql("Host=my_host;Database=my_db;Username=my_user;Password=my_password");
+            if (!optionsBuilder.IsConfigured)
+            {
+                var connectionString = Environment.GetEnvironmentVariable("TOURPLANNER_DB_CONNECTION");
+                if (connectionString is null)
+                {
+                    log.Error("Database connection string not found in environment variables.", new ConfigurationErrorsException());
+                    throw new InvalidOperationException("Database connection string not found in environment variables.");
+                }
+                optionsBuilder.UseNpgsql(connectionString);
+                log.Info("Database configured successfully.");
+            }
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
