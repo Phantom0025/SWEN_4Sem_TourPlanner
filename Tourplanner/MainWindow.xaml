@@ -86,7 +86,7 @@
                     </TabItem>
                     <TabItem Header="Route">
                         <Border Width="300" Height="200" Background="LightGray">
-                            <!-- <Image Source="{Binding SelectedTour.RouteInformationImagePath}" Stretch="Uniform"/> -->
+                            <Image Source="{Binding SelectedTour.MapPath}" Stretch="Uniform"/>
                         </Border>
                     </TabItem>
                     <TabItem Header="Misc">

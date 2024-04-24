@@ -20,7 +20,11 @@
         <TextBox x:Name="txtTo"/>
 
         <Label Content="Transport Type"/>
-        <TextBox x:Name="txtTransportType"/>
+        <ComboBox x:Name="txtTransportType">
+            <ComboBoxItem Content="driving-car"/>
+            <ComboBoxItem Content="cycling-regular"/>
+            <ComboBoxItem Content="foot-walking"/>
+        </ComboBox>
 
         <StackPanel Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Center">
             <Button x:Name="AddButton" Content="Add" Margin="5" Click="AddButton_Click"/>

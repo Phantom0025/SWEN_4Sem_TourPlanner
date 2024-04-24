@@ -34,7 +34,7 @@ namespace Tourplanner.DAL.Entities
         public required double Distance { get; set; }
 
         [Required]
-        public required string EstimatedTime { get; set; }
+        public required TimeSpan EstimatedTime { get; set; }
 
         [Required]
         public required string MapPath { get; set; }
