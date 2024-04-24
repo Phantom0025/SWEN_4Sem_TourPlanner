@@ -30,6 +30,15 @@ namespace Tourplanner.DAL.Entities
         [Required]
         public required string TransportType { get; set; }
 
+        [Required]
+        public required double Distance { get; set; }
+
+        [Required]
+        public required string estimatedTime { get; set; }
+
+        [Required]
+        public required string mapPath { get; set; }
+
         public virtual List<TourLog> TourLogs { get; set; } = new List<TourLog>();
 
         // Computed attributes are not stored in the database, so they don't need annotations.
