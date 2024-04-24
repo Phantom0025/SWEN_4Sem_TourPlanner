@@ -1,9 +1,15 @@
-﻿using NLog;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using NLog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml;
 using Tourplanner.DAL.Entities;
 using TourPlanner.DAL;
 
@@ -15,6 +21,8 @@ namespace TourPlanner.BL
         bool DeleteTour(int tourId);
         bool ModifyTour(Tour updatedTour);
         List<Tour> GetAllTours();
+        void ImportTours(string filePath);
+        void ExportTours(string filePath);
     }
 
     public class TourService : ITourService
@@ -33,8 +41,18 @@ namespace TourPlanner.BL
             if (tour == null)
                 throw new ArgumentNullException(nameof(tour));
 
-            _dbContext.Tours.Add(tour);
-            _dbContext.SaveChanges();
+            bool tourExists = _dbContext.Tours.Any(t => t.Name == tour.Name && t.From == tour.From && t.To == tour.To);
+
+            if (tourExists)
+            {
+                log.Warn($"Skipping import for duplicate tour: {tour.Name} from {tour.From} to {tour.To}");
+            }
+            else
+            {
+                _dbContext.Tours.Add(tour);
+                _dbContext.SaveChanges();
+                log.Info($"Added new tour: {tour.Name} from {tour.From} to {tour.To}");
+            }
         }
 
         public bool DeleteTour(int tourId)
@@ -63,6 +81,49 @@ namespace TourPlanner.BL
         public List<Tour> GetAllTours()
         {
             return _dbContext.Tours.ToList();
+        }
+
+        public void ImportTours(string filePath)
+        {
+            var jsonData = File.ReadAllText(filePath);
+            var tours = JsonConvert.DeserializeObject<List<Tour>>(jsonData);
+            foreach (var tour in tours)
+            {
+                AddTour(tour); // Reusing the add logic ensures validation and addition logic is centralized
+            }
+        }
+
+        public void ExportTours(string filePath)
+        {
+            var tours = GetAllTours();
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Newtonsoft.Json.Formatting.Indented,
+                ContractResolver = new IgnorePropertiesResolver(new[] { "Popularity", "AverageRating" }) // Custom resolver to ignore non-mapped properties
+            };
+            var jsonData = JsonConvert.SerializeObject(tours, settings);
+            File.WriteAllText(filePath, jsonData);
+        }
+
+        private class IgnorePropertiesResolver : DefaultContractResolver
+        {
+            private HashSet<string> _propsToIgnore;
+
+            public IgnorePropertiesResolver(IEnumerable<string> propNamesToIgnore)
+            {
+                _propsToIgnore = new HashSet<string>(propNamesToIgnore);
+            }
+
+            protected override Newtonsoft.Json.Serialization.JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var property = base.CreateProperty(member, memberSerialization);
+                if (_propsToIgnore.Contains(property.PropertyName))
+                {
+                    property.ShouldSerialize = instance => false;
+                }
+                return property;
+            }
         }
     }
 }

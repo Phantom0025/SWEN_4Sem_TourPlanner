@@ -27,10 +27,8 @@
         <!-- Top Menu Bar -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem Header="New" />
-                <MenuItem Header="Open" />
-                <MenuItem Header="Save" />
-                <MenuItem Header="Exit" />
+                <MenuItem Command="{Binding ImportCommand}" Header="Import" />
+                <MenuItem Command="{Binding ExportCommand}" Header="Export" />
             </MenuItem>
             <MenuItem Header="Edit">
                 <MenuItem Header="Undo" />

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TourPlanner.UI"
         mc:Ignorable="d"
-        Title="TourLogDialog" Height="400" Width="250">
+        Title="TourLogDialog" Height="450" Width="300" MinHeight="450" MinWidth="300">
     <StackPanel Margin="10">
         <Label Content="Date and Time"/>
         

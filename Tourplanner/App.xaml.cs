@@ -40,7 +40,7 @@ namespace Tourplanner
             using (var scope = _serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.EnsureDeleted();
+                //dbContext.Database.EnsureDeleted();
                 log.Info("Database deleted successfully.");
                 dbContext.Database.EnsureCreated();
                 log.Info("Database created successfully.");
