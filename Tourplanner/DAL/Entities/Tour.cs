@@ -34,10 +34,10 @@ namespace Tourplanner.DAL.Entities
         public required double Distance { get; set; }
 
         [Required]
-        public required string estimatedTime { get; set; }
+        public required string EstimatedTime { get; set; }
 
         [Required]
-        public required string mapPath { get; set; }
+        public required string MapPath { get; set; }
 
         public virtual List<TourLog> TourLogs { get; set; } = new List<TourLog>();
 
