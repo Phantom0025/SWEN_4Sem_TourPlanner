@@ -42,6 +42,8 @@ namespace TourPlanner.UI
             txtTo.Text = selectedTour.To;
             txtTransportType.Text = selectedTour.TransportType;
 
+            Result = selectedTour;
+
             this.Title = "Edit Tour";
             ((Button)FindName("AddButton")).Content = "Save Changes";
         }
@@ -50,7 +52,6 @@ namespace TourPlanner.UI
 
         private async void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            // Check if all required fields are filled out
             if (string.IsNullOrWhiteSpace(txtName.Text) ||
                 string.IsNullOrWhiteSpace(txtDescription.Text) ||
                 string.IsNullOrWhiteSpace(txtFrom.Text) ||
@@ -63,30 +64,36 @@ namespace TourPlanner.UI
 
             try
             {
-                // Fetch additional details from the API
-                var apiData = await FetchTourDetailsFromAPI(txtFrom.Text, txtTo.Text, txtTransportType.Text);
+                bool fromToChanged = Result == null || txtFrom.Text != Result.From || txtTo.Text != Result.To;
+                bool transportTypeChanged = Result == null || txtTransportType.Text != Result.TransportType;
 
-                // Create a new Tour object with the input data and the fetched API data
-                Result = new Tour
+                if (fromToChanged || transportTypeChanged)
                 {
-                    Name = txtName.Text,
-                    Description = txtDescription.Text,
-                    From = txtFrom.Text,
-                    To = txtTo.Text,
-                    TransportType = txtTransportType.Text,
-                    Distance = apiData.Distance,
-                    EstimatedTime = apiData.EstimatedTime,
-                    MapPath = apiData.MapPath
-                };
+                    var (distance, estimatedTime) = await FetchTourData(txtFrom.Text, txtTo.Text, txtTransportType.Text);
+                    Result.Distance = distance;
+                    Result.EstimatedTime = estimatedTime;
+                }
+
+                if (fromToChanged)
+                {
+                    Result.MapPath = await FetchTourImage(txtFrom.Text, txtTo.Text);
+                }
+
+                Result.Name = txtName.Text;
+                Result.Description = txtDescription.Text;
+                Result.From = txtFrom.Text;
+                Result.To = txtTo.Text;
+                Result.TransportType = txtTransportType.Text;
 
                 this.DialogResult = true;
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to retrieve route details: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Failed to retrieve tour details: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private async Task<(double Latitude, double Longitude)> GetCoordinatesFromCityName(string city)
         {
@@ -108,7 +115,7 @@ namespace TourPlanner.UI
             }
         }
 
-        private async Task<(double Distance, TimeSpan EstimatedTime, string MapPath)> FetchTourDetailsFromAPI(string fromCity, string toCity, string transportType)
+        private async Task<(double Distance, TimeSpan EstimatedTime)> FetchTourData(string fromCity, string toCity, string transportType)
         {
             var fromCoords = await GetCoordinatesFromCityName(fromCity);
             var toCoords = await GetCoordinatesFromCityName(toCity);
@@ -124,23 +131,35 @@ namespace TourPlanner.UI
             double time = routeData.features[0].properties.summary.duration;
             TimeSpan estimatedTime = TimeSpan.FromSeconds(time);
 
-            // Calculate the map tile to cover the whole route
+            return (distance, estimatedTime);
+        }
+
+        private async Task<string> FetchTourImage(string fromCity, string toCity)
+        {
+            var fromCoords = await GetCoordinatesFromCityName(fromCity);
+            var toCoords = await GetCoordinatesFromCityName(toCity);
+
             var (tileX, tileY, zoomLevel) = CalculateTileCoverage(fromCoords, toCoords);
             string tileUrl = $"https://tile.openstreetmap.org/{zoomLevel}/{tileX}/{tileY}.png";
 
-            // Download the tile and save locally
-            string localPath = await DownloadAndSaveTile(tileUrl);
-
-            return (distance, estimatedTime, localPath);
+            return await DownloadAndSaveTile(tileUrl);
         }
+
 
         private async Task<string> DownloadAndSaveTile(string tileUrl)
         {
             string baseDir = Environment.GetEnvironmentVariable("BASE_DIR");
             string tilesDir = System.IO.Path.Combine(baseDir, "tiles");
-            Directory.CreateDirectory(tilesDir);  // Ensure directory exists
+            Directory.CreateDirectory(tilesDir); 
 
             string localFilename = System.IO.Path.Combine(tilesDir, System.IO.Path.GetFileName(tileUrl));
+
+            // Check if the file already exists
+            if (File.Exists(localFilename))
+            {
+                return localFilename;
+            }
+
             using (var response = await client.GetAsync(tileUrl))
             {
                 if (response.IsSuccessStatusCode)
@@ -155,6 +174,7 @@ namespace TourPlanner.UI
                 }
             }
         }
+
 
         private int CalculateZoomLevel((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
         {
@@ -174,15 +194,15 @@ namespace TourPlanner.UI
 
         private int DistanceToZoomLevel(double distance)
         {
-            // These thresholds are examples and might need adjustment for specific applications
-            if (distance < 30) return 10; // Zoom in for short distances
+            //Does not work well
+            if (distance < 30) return 10;
             else if (distance < 100) return 9;
             else if (distance < 300) return 7;
             else if (distance < 600) return 6;
             else if (distance < 1200) return 5;
             else if (distance < 2400) return 4;
             else if (distance < 4800) return 3;
-            else return 2; // Zoom out for long distances
+            else return 2;
         }
 
         private double DegreesToRadians(double degrees)

@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using NLog;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Tourplanner.DAL.Entities;
@@ -50,6 +51,55 @@ namespace TourPlanner.UI
             ExportCommand = new RelayCommand(ExportExecute);
         }
 
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged();
+                FilterTours();
+            }
+        }
+
+        private void FilterTours()
+        {
+            if (string.IsNullOrEmpty(SearchText))
+            {
+                FilteredTours = new ObservableCollection<Tour>(_tours);
+            }
+            else
+            {
+                var lowerSearchText = SearchText.ToLower();
+                FilteredTours = new ObservableCollection<Tour>(
+                    _tours.Where(tour =>
+                        tour.Name.ToLower().Contains(lowerSearchText) ||
+                        tour.Description.ToLower().Contains(lowerSearchText) ||
+                        tour.From.ToLower().Contains(lowerSearchText) ||
+                        tour.To.ToLower().Contains(lowerSearchText) ||
+                        tour.TransportType.ToLower().Contains(lowerSearchText) ||
+                        tour.TourLogs.Any(log =>
+                            (log.Comment != null && log.Comment.ToLower().Contains(lowerSearchText)) ||
+                            log.DateTime.ToString("yyyy-MM-dd HH:mm:ss").ToLower().Contains(lowerSearchText) || // Custom date format
+                            log.TotalTime.ToString(@"dd\.hh\:mm\:ss").ToLower().Contains(lowerSearchText) || // Custom TimeSpan format
+                            log.Difficulty.ToString().ToLower().Contains(lowerSearchText) ||
+                            log.TotalDistance.ToString().ToLower().Contains(lowerSearchText) ||
+                            log.Rating.ToString().ToLower().Contains(lowerSearchText)
+                        )
+                    )
+                );
+
+
+            }
+            OnPropertyChanged("FilteredTours");
+
+            if (FilteredTours.Any())
+            {
+                SelectedTour = FilteredTours.First();
+            }
+        }
+
         private void ImportExecute(object parameter)
         {
             log.Info("Importing tours from file");
@@ -63,7 +113,9 @@ namespace TourPlanner.UI
             if (openFileDialog.ShowDialog() == true)
             {
                 _tourService.ImportTours(openFileDialog.FileName);
-                Tours = new ObservableCollection<Tour>(_dbContext.Tours.Include(t => t.TourLogs).ToList());
+                Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
+                FilterTours();
+                log.Info("Tours imported successfully.");
             }
             else
             {
@@ -100,6 +152,7 @@ namespace TourPlanner.UI
                 Tour newTour = dialog.Result;
                 _tourService.AddTour(newTour);
                 Tours.Add(newTour);
+                FilterTours();
                 log.Info("Added new tour: {0}", newTour.Name);
             }
             else
@@ -129,19 +182,13 @@ namespace TourPlanner.UI
                     log.Info("Modified tour: {0}", dialog.Result.Name);
                     _tourService.ModifyTour(dialog.Result);
                     Tours[Tours.IndexOf(SelectedTour)] = dialog.Result;
+                    OnPropertyChanged(nameof(SelectedTour));
                 }
                 else
                 {
                     // Handle dialog close with cancel or close
                 }
             }
-        }
-
-        private void RefreshSelectedTour()
-        {
-            var currentTour = SelectedTour;
-            SelectedTour = null; 
-            SelectedTour = currentTour; 
         }
 
         private void AddTourLogExecute(object parameter)
@@ -155,7 +202,6 @@ namespace TourPlanner.UI
                     TourLog newTourLog = dialog.Result;
                     newTourLog.TourId = SelectedTour.TourId;
                     _tourLogService.AddTourLog(newTourLog);
-
                     OnPropertyChanged(nameof(SelectedTour));
 
                     log.Info("Added new tour log to tour: {0}", SelectedTour.Name);
@@ -213,6 +259,17 @@ namespace TourPlanner.UI
             {
                 _tours = value;
                 OnPropertyChanged(nameof(Tours));
+            }
+        }
+
+        private ObservableCollection<Tour> _filteredTours;
+        public ObservableCollection<Tour> FilteredTours
+        {
+            get => _filteredTours;
+            set
+            {
+                _filteredTours = value;
+                OnPropertyChanged();
             }
         }
 

@@ -46,7 +46,8 @@
         </Menu>
 
         <!-- Search Bar -->
-        <TextBox DockPanel.Dock="Top" Margin="5" Height="20"/>
+        <!--<TextBox DockPanel.Dock="Top" Margin="5" Height="20"/>-->
+        <TextBox DockPanel.Dock="Top" Margin="5" Height="20" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
 
         <!-- Main Content -->
         <Grid>
@@ -72,8 +73,13 @@
                 </StackPanel>
             </Grid>
 
-            <ListBox Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" x:Name="ToursListBox" Margin="5, 0, 5, 5"
+            <!--<ListBox Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" x:Name="ToursListBox" Margin="5, 0, 5, 5"
              ItemsSource="{Binding Tours}"
+             DisplayMemberPath="Name"
+             SelectedItem="{Binding SelectedTour, Mode=TwoWay}"/>-->
+
+            <ListBox Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" x:Name="ToursListBox" Margin="5, 0, 5, 5"
+             ItemsSource="{Binding FilteredTours}"
              DisplayMemberPath="Name"
              SelectedItem="{Binding SelectedTour, Mode=TwoWay}"/>
 
