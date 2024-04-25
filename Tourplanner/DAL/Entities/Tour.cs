@@ -5,10 +5,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Tourplanner.DAL.Entities
 {
-    public class Tour
+    public class Tour : INotifyPropertyChanged
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -39,14 +42,20 @@ namespace Tourplanner.DAL.Entities
         [Required]
         public required string MapPath { get; set; }
 
-        public virtual List<TourLog> TourLogs { get; set; } = new List<TourLog>();
+        public ObservableCollection<TourLog> TourLogs = new ObservableCollection<TourLog>();
 
-        // Computed attributes are not stored in the database, so they don't need annotations.
         [NotMapped]
         public int Popularity => TourLogs.Count;
 
         [NotMapped]
         public double AverageRating => TourLogs.Any() ? TourLogs.Average(log => log.Rating) : 0;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
 }

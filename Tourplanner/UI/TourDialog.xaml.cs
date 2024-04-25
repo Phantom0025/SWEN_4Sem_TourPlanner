@@ -34,6 +34,8 @@ namespace TourPlanner.UI
 
         public TourDialog(Tour selectedTour)
         {
+            InitializeComponent();
+
             txtName.Text = selectedTour.Name;
             txtDescription.Text = selectedTour.Description;
             txtFrom.Text = selectedTour.From;
@@ -154,18 +156,58 @@ namespace TourPlanner.UI
             }
         }
 
-        private (int tileX, int tileY, int zoomLevel) CalculateTileCoverage((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
+        private int CalculateZoomLevel((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
         {
-            int zoomLevel = CalculateDynamicZoomLevel(fromCoords, toCoords);
+            double earthRadiusKm = 6371.0; // Radius of the Earth in kilometers
+            double dLat = DegreesToRadians(toCoords.Latitude - fromCoords.Latitude);
+            double dLon = DegreesToRadians(toCoords.Longitude - fromCoords.Longitude);
+            double lat1 = DegreesToRadians(fromCoords.Latitude);
+            double lat2 = DegreesToRadians(toCoords.Latitude);
+
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2) * Math.Cos(lat1) * Math.Cos(lat2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            double distance = earthRadiusKm * c;
+
+            return DistanceToZoomLevel(distance);
+        }
+
+        private int DistanceToZoomLevel(double distance)
+        {
+            // These thresholds are examples and might need adjustment for specific applications
+            if (distance < 30) return 10; // Zoom in for short distances
+            else if (distance < 100) return 9;
+            else if (distance < 300) return 7;
+            else if (distance < 600) return 6;
+            else if (distance < 1200) return 5;
+            else if (distance < 2400) return 4;
+            else if (distance < 4800) return 3;
+            else return 2; // Zoom out for long distances
+        }
+
+        private double DegreesToRadians(double degrees)
+        {
+            return degrees * Math.PI / 180.0;
+        }
+
+
+        private (int tileX, int tileY, int zoomLevel) CalculateTileCoverage(
+            (double Latitude, double Longitude) fromCoords,
+            (double Latitude, double Longitude) toCoords)
+        {
+            // Calculate dynamic zoom level based on the distance between the points
+            int zoomLevel = CalculateZoomLevel(fromCoords, toCoords);
+
             var midpoint = CalculateGeographicMidpoint(fromCoords, toCoords);
             PointF tilePoint = WorldToTilePos(midpoint.Longitude, midpoint.Latitude, zoomLevel);
 
-            // Convert PointF to integer tile coordinates
-            int tileX = (int)Math.Floor(tilePoint.X);
-            int tileY = (int)Math.Floor(tilePoint.Y);
+            // Convert PointF to integer tile coordinates using rounding to improve accuracy
+            int tileX = (int)Math.Round(tilePoint.X);
+            int tileY = (int)Math.Round(tilePoint.Y);
 
             return (tileX, tileY, zoomLevel);
         }
+
 
         private (double Latitude, double Longitude) CalculateGeographicMidpoint((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
         {
@@ -174,34 +216,21 @@ namespace TourPlanner.UI
             return (midLatitude, midLongitude);
         }
 
-        private int CalculateDynamicZoomLevel((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
+        private double CalculateGeographicalSpanInMeters((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords, double latitudeRad)
         {
-            // Earth's radius in meters at the equator
-            const double earthRadiusAtEquator = 6378137.0;
-            // Circumference in meters at the equator
-            const double earthCircumference = 2 * Math.PI * earthRadiusAtEquator;
+            // Average Earth circumference in meters
+            const double earthCircumference = 40075016.686;
 
-            // Calculate the distance in meters at the equator for one degree of longitude
-            double metersPerDegree = earthCircumference / 360.0;
+            // Differences in degrees
+            double latDiff = Math.Abs(fromCoords.Latitude - toCoords.Latitude);
+            double lonDiff = Math.Abs(fromCoords.Longitude - toCoords.Longitude);
 
-            // Calculate the differences in degrees
-            double latDiffDegrees = Math.Abs(fromCoords.Latitude - toCoords.Latitude);
-            double lonDiffDegrees = Math.Abs(fromCoords.Longitude - toCoords.Longitude);
+            // Calculate span for the widest dimension
+            double latSpan = latDiff * earthCircumference / 360.0;
+            double lonSpan = lonDiff * earthCircumference * Math.Cos(latitudeRad) / 360.0;
 
-            // Calculate the differences in meters at the equator
-            double maxDiffMeters = Math.Max(latDiffDegrees, lonDiffDegrees) * metersPerDegree;
-
-            // Start at zoom level 0 and increase until we find the appropriate zoom level
-            int zoomLevel = 0;
-            double mpp = earthCircumference / 256; // meters per pixel at zoom level 0 for 256px tiles
-            while (mpp * 256 > maxDiffMeters && zoomLevel < 18)
-            {
-                zoomLevel++;
-                mpp /= 2;
-            }
-
-            // Ensure we don't go below zoom level 0
-            return Math.Max(0, zoomLevel - 1); // Subtract 1 to fit the entire area
+            // Return the maximum span in meters
+            return Math.Max(latSpan, lonSpan);
         }
 
 

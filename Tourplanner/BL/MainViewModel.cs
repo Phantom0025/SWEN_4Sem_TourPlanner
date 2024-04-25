@@ -14,7 +14,6 @@ namespace TourPlanner.UI
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly AppDbContext _dbContext;
-        private Tour _selectedTour;
         private TourLog _selectedTourLog;
         private static Logger log = LogManager.GetCurrentClassLogger();
 
@@ -139,6 +138,13 @@ namespace TourPlanner.UI
             }
         }
 
+        private void RefreshSelectedTour()
+        {
+            var currentTour = SelectedTour;
+            SelectedTour = null; 
+            SelectedTour = currentTour; 
+        }
+
         private void AddTourLogExecute(object parameter)
         {
             if (SelectedTour != null)
@@ -150,8 +156,9 @@ namespace TourPlanner.UI
                     TourLog newTourLog = dialog.Result;
                     newTourLog.TourId = SelectedTour.TourId;
                     _tourLogService.AddTourLog(newTourLog);
-                    SelectedTour.TourLogs.Add(newTourLog);
-                    TourLogs.Add(newTourLog);
+
+                    OnPropertyChanged(nameof(SelectedTour));
+
                     log.Info("Added new tour log to tour: {0}", SelectedTour.Name);
                 }
                 else
@@ -168,7 +175,6 @@ namespace TourPlanner.UI
                 log.Info("Deleted tour log from tour: {0}", SelectedTour.Name);
                 _tourLogService.DeleteTourLog(SelectedTourLog.TourLogId);
                 SelectedTour.TourLogs.Remove(SelectedTourLog);
-                TourLogs.Remove(SelectedTourLog);
             }
         }
 
@@ -183,7 +189,8 @@ namespace TourPlanner.UI
                     log.Info("Modified tour log from tour: {0}", SelectedTour.Name);
                     _tourLogService.ModifyTourLog(dialog.Result);
                     SelectedTour.TourLogs[SelectedTour.TourLogs.IndexOf(SelectedTourLog)] = dialog.Result;
-                    TourLogs[TourLogs.IndexOf(SelectedTourLog)] = dialog.Result;
+
+                    OnPropertyChanged(nameof(SelectedTour));
                 }
                 else
                 {
@@ -210,6 +217,8 @@ namespace TourPlanner.UI
             }
         }
 
+        private Tour _selectedTour;
+
         public Tour SelectedTour
         {
             get => _selectedTour;
@@ -218,8 +227,11 @@ namespace TourPlanner.UI
                 if (_selectedTour != value)
                 {
                     _selectedTour = value;
-                    TourLogs = new ObservableCollection<TourLog>(_selectedTour?.TourLogs ?? new List<TourLog>());
-                    OnPropertyChanged();
+
+                    //TourLogs = new ObservableCollection<TourLog>(_selectedTour?.TourLogs ?? new List<TourLog>());
+                    TourLogs = _selectedTour?.TourLogs ?? new ObservableCollection<TourLog>();
+
+                    OnPropertyChanged(nameof(SelectedTour));
                 }
             }
         }
@@ -247,7 +259,7 @@ namespace TourPlanner.UI
                 if (_tourLogs != value)
                 {
                     _tourLogs = value;
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TourLogs));
                 }
             }
         }

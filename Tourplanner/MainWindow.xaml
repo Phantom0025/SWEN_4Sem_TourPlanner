@@ -89,8 +89,47 @@
                             <Image Source="{Binding SelectedTour.MapPath}" Stretch="Uniform"/>
                         </Border>
                     </TabItem>
-                    <TabItem Header="Misc">
-                        <!-- Content for the Misc tab -->
+                    <TabItem Header="Details">
+                        <Grid Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Description:" Grid.Row="0" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.Description}" Grid.Row="0" Grid.Column="1"/>
+
+                            <TextBlock Text="From:" Grid.Row="1" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.From}" Grid.Row="1" Grid.Column="1"/>
+
+                            <TextBlock Text="To:" Grid.Row="2" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.To}" Grid.Row="2" Grid.Column="1"/>
+
+                            <TextBlock Text="Transport Type:" Grid.Row="3" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.TransportType}" Grid.Row="3" Grid.Column="1"/>
+
+                            <TextBlock Text="Distance (m):" Grid.Row="4" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.Distance}" Grid.Row="4" Grid.Column="1"/>
+
+                            <TextBlock Text="Estimated Time:" Grid.Row="5" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.EstimatedTime, StringFormat='{}{0:hh\\:mm}'}" Grid.Row="5" Grid.Column="1"/>
+
+                            <TextBlock Text="Popularity (Number of Logs):" Grid.Row="6" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.Popularity}" Grid.Row="6" Grid.Column="1"/>
+
+                            <TextBlock Text="Average Rating:" Grid.Row="7" Grid.Column="0" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding SelectedTour.AverageRating}" Grid.Row="7" Grid.Column="1"/>
+                        </Grid>
                     </TabItem>
                 </TabControl>
             </Grid>
