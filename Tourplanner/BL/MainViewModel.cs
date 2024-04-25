@@ -14,7 +14,6 @@ namespace TourPlanner.UI
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly AppDbContext _dbContext;
-        private TourLog _selectedTourLog;
         private static Logger log = LogManager.GetCurrentClassLogger();
 
         private ITourService _tourService;
@@ -236,6 +235,7 @@ namespace TourPlanner.UI
             }
         }
 
+        private TourLog _selectedTourLog;
         public TourLog SelectedTourLog
         {
             get { return _selectedTourLog; }

@@ -11,9 +11,9 @@ namespace TourPlanner.BL
     public interface ITourLogService
     {
         void AddTourLog(TourLog tourLog);
-        bool DeleteTourLog(int tourLogId);
+        bool DeleteTourLog(Guid tourLogId);
         bool ModifyTourLog(TourLog tourLog);
-        List<TourLog> GetTourLogsByTourId(int tourId);
+        List<TourLog> GetTourLogsByTourId(Guid tourId);
     }
 
     public class TourLogService : ITourLogService
@@ -34,7 +34,7 @@ namespace TourPlanner.BL
             _dbContext.SaveChanges();
         }
 
-        public bool DeleteTourLog(int tourLogId)
+        public bool DeleteTourLog(Guid tourLogId)
         {
             var tourLog = _dbContext.TourLogs.FirstOrDefault(tl => tl.TourLogId == tourLogId);
             if (tourLog == null)
@@ -57,7 +57,7 @@ namespace TourPlanner.BL
             return true;
         }
 
-        public List<TourLog> GetTourLogsByTourId(int tourId)
+        public List<TourLog> GetTourLogsByTourId(Guid tourId)
         {
             return _dbContext.TourLogs.Where(tl => tl.TourId == tourId).ToList();
         }

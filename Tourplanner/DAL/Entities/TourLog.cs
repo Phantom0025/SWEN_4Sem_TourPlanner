@@ -12,12 +12,12 @@ namespace Tourplanner.DAL.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TourLogId { get; set; }
+        public Guid TourLogId { get; set; }
 
         [Required]
-        public int TourId { get; set; }
-
         [ForeignKey("TourId")]
+        public Guid TourId { get; set; }
+
         [Required]
         public virtual Tour Tour { get; set; }
 

@@ -18,7 +18,7 @@ namespace TourPlanner.BL
     public interface ITourService
     {
         void AddTour(Tour tour);
-        bool DeleteTour(int tourId);
+        bool DeleteTour(Guid tourId);
         bool ModifyTour(Tour updatedTour);
         List<Tour> GetAllTours();
         void ImportTours(string filePath);
@@ -55,7 +55,7 @@ namespace TourPlanner.BL
             }
         }
 
-        public bool DeleteTour(int tourId)
+        public bool DeleteTour(Guid tourId)
         {
             var tour = _dbContext.Tours.FirstOrDefault(t => t.TourId == tourId);
             if (tour == null)
@@ -89,7 +89,7 @@ namespace TourPlanner.BL
             var tours = JsonConvert.DeserializeObject<List<Tour>>(jsonData);
             foreach (var tour in tours)
             {
-                AddTour(tour); // Reusing the add logic ensures validation and addition logic is centralized
+                AddTour(tour);
             }
         }
 
@@ -100,11 +100,12 @@ namespace TourPlanner.BL
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 Formatting = Newtonsoft.Json.Formatting.Indented,
-                ContractResolver = new IgnorePropertiesResolver(new[] { "Popularity", "AverageRating" }) // Custom resolver to ignore non-mapped properties
+                ContractResolver = new IgnorePropertiesResolver(new[] { "Popularity", "AverageRating" })
             };
             var jsonData = JsonConvert.SerializeObject(tours, settings);
             File.WriteAllText(filePath, jsonData);
         }
+
 
         private class IgnorePropertiesResolver : DefaultContractResolver
         {

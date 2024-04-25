@@ -15,7 +15,7 @@ namespace Tourplanner.DAL.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TourId { get; set; }
+        public Guid TourId { get; set; }
 
         [Required]
         [MaxLength(255)]
