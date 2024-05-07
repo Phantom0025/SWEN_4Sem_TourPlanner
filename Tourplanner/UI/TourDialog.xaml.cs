@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -26,10 +27,12 @@ namespace TourPlanner.UI
     public partial class TourDialog : Window
     {
         private static readonly HttpClient client = new HttpClient();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         public TourDialog()
         {
             InitializeComponent();
+            Result = new Tour();
         }
 
         public TourDialog(Tour selectedTour)
@@ -64,19 +67,46 @@ namespace TourPlanner.UI
 
             try
             {
+                bool success;
+
                 bool fromToChanged = Result == null || txtFrom.Text != Result.From || txtTo.Text != Result.To;
                 bool transportTypeChanged = Result == null || txtTransportType.Text != Result.TransportType;
 
                 if (fromToChanged || transportTypeChanged)
                 {
-                    var (distance, estimatedTime) = await FetchTourData(txtFrom.Text, txtTo.Text, txtTransportType.Text);
-                    Result.Distance = distance;
-                    Result.EstimatedTime = estimatedTime;
+                    var (distance, estimatedTime, success1) = await FetchTourData(txtFrom.Text, txtTo.Text, txtTransportType.Text);
+
+                    if (success1)
+                    {
+                        Result.Distance = distance;
+                        Result.EstimatedTime = estimatedTime;
+                    }
+                    else
+                    {
+                        Result.Distance = 0;
+                        Result.EstimatedTime = TimeSpan.Zero;
+                        MessageBox.Show("Failed to fetch tour data.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        this.DialogResult = false;
+                        this.Close();
+                        return;
+                    }
                 }
 
                 if (fromToChanged)
                 {
-                    Result.MapPath = await FetchTourImage(txtFrom.Text, txtTo.Text);
+                    
+                    var (path, success2) = await FetchTourImage(txtFrom.Text, txtTo.Text);
+                    if (success2)
+                    {
+                        Result.MapPath = path;
+                    }
+                    else
+                    {
+                        Result.MapPath = string.Empty;
+                        MessageBox.Show("Failed to fetch tour image.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        this.DialogResult = false;
+                        this.Close();
+                    }
                 }
 
                 Result.Name = txtName.Text;
@@ -115,34 +145,52 @@ namespace TourPlanner.UI
             }
         }
 
-        private async Task<(double Distance, TimeSpan EstimatedTime)> FetchTourData(string fromCity, string toCity, string transportType)
+
+        private async Task<(double Distance, TimeSpan EstimatedTime, bool Success)> FetchTourData(string fromCity, string toCity, string transportType)
         {
-            var fromCoords = await GetCoordinatesFromCityName(fromCity);
-            var toCoords = await GetCoordinatesFromCityName(toCity);
+            try
+            {
+                var fromCoords = await GetCoordinatesFromCityName(fromCity);
+                var toCoords = await GetCoordinatesFromCityName(toCity);
 
-            client.DefaultRequestHeaders.Add("User-Agent", "Tourplanner_Project");
+                client.DefaultRequestHeaders.Add("User-Agent", "Tourplanner_Project");
+                var apiKey = Environment.GetEnvironmentVariable("API_KEY");
 
-            string url = $"https://api.openrouteservice.org/v2/directions/{Uri.EscapeDataString(transportType)}?api_key=5b3ce3597851110001cf6248fe33517ac22446b78d99e5c4fa6adc09&start={fromCoords.Longitude.ToString("F6", CultureInfo.InvariantCulture)},{fromCoords.Latitude.ToString("F6", CultureInfo.InvariantCulture)}&end={toCoords.Longitude.ToString("F6", CultureInfo.InvariantCulture)},{toCoords.Latitude.ToString("F6", CultureInfo.InvariantCulture)}";
-            var response = await client.GetStringAsync(url);
+                string url = $"https://api.openrouteservice.org/v2/directions/{Uri.EscapeDataString(transportType)}?api_key={apiKey}&start={fromCoords.Longitude.ToString("F6", CultureInfo.InvariantCulture)},{fromCoords.Latitude.ToString("F6", CultureInfo.InvariantCulture)}&end={toCoords.Longitude.ToString("F6", CultureInfo.InvariantCulture)},{toCoords.Latitude.ToString("F6", CultureInfo.InvariantCulture)}";
 
-            dynamic routeData = JsonConvert.DeserializeObject(response);
+                var response = await client.GetStringAsync(url);
 
-            double distance = routeData.features[0].properties.summary.distance;
-            double time = routeData.features[0].properties.summary.duration;
-            TimeSpan estimatedTime = TimeSpan.FromSeconds(time);
+                dynamic routeData = JsonConvert.DeserializeObject(response);
+                double distance = routeData.features[0].properties.summary.distance;
+                double time = routeData.features[0].properties.summary.duration;
+                TimeSpan estimatedTime = TimeSpan.FromSeconds(time);
 
-            return (distance, estimatedTime);
+                return (distance, estimatedTime, true);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Failed to fetch tour data for {fromCity} to {toCity} using {transportType}");
+                return (0, TimeSpan.Zero, false);
+            }
         }
 
-        private async Task<string> FetchTourImage(string fromCity, string toCity)
+        private async Task<(string FilePath, bool Success)> FetchTourImage(string fromCity, string toCity)
         {
-            var fromCoords = await GetCoordinatesFromCityName(fromCity);
-            var toCoords = await GetCoordinatesFromCityName(toCity);
+            try
+            {
+                var fromCoords = await GetCoordinatesFromCityName(fromCity);
+                var toCoords = await GetCoordinatesFromCityName(toCity);
 
-            var (tileX, tileY, zoomLevel) = CalculateTileCoverage(fromCoords, toCoords);
-            string tileUrl = $"https://tile.openstreetmap.org/{zoomLevel}/{tileX}/{tileY}.png";
+                var (tileX, tileY, zoomLevel) = CalculateTileCoverage(fromCoords, toCoords);
+                string tileUrl = $"https://tile.openstreetmap.org/{zoomLevel}/{tileX}/{tileY}.png";
 
-            return await DownloadAndSaveTile(tileUrl);
+                return (await DownloadAndSaveTile(tileUrl), true);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Failed to fetch tour image for {fromCity} to {toCity}");
+                return (string.Empty, false);
+            }
         }
 
 
@@ -175,36 +223,6 @@ namespace TourPlanner.UI
             }
         }
 
-
-        private int CalculateZoomLevel((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
-        {
-            double earthRadiusKm = 6371.0; // Radius of the Earth in kilometers
-            double dLat = DegreesToRadians(toCoords.Latitude - fromCoords.Latitude);
-            double dLon = DegreesToRadians(toCoords.Longitude - fromCoords.Longitude);
-            double lat1 = DegreesToRadians(fromCoords.Latitude);
-            double lat2 = DegreesToRadians(toCoords.Latitude);
-
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2) * Math.Cos(lat1) * Math.Cos(lat2);
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-            double distance = earthRadiusKm * c;
-
-            return DistanceToZoomLevel(distance);
-        }
-
-        private int DistanceToZoomLevel(double distance)
-        {
-            //Does not work well
-            if (distance < 30) return 10;
-            else if (distance < 100) return 9;
-            else if (distance < 300) return 7;
-            else if (distance < 600) return 6;
-            else if (distance < 1200) return 5;
-            else if (distance < 2400) return 4;
-            else if (distance < 4800) return 3;
-            else return 2;
-        }
-
         private double DegreesToRadians(double degrees)
         {
             return degrees * Math.PI / 180.0;
@@ -212,45 +230,25 @@ namespace TourPlanner.UI
 
 
         private (int tileX, int tileY, int zoomLevel) CalculateTileCoverage(
-            (double Latitude, double Longitude) fromCoords,
-            (double Latitude, double Longitude) toCoords)
+            (double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
         {
-            // Calculate dynamic zoom level based on the distance between the points
-            int zoomLevel = CalculateZoomLevel(fromCoords, toCoords);
+            int zoomLevel = 18;
 
-            var midpoint = CalculateGeographicMidpoint(fromCoords, toCoords);
-            PointF tilePoint = WorldToTilePos(midpoint.Longitude, midpoint.Latitude, zoomLevel);
+            while (zoomLevel > 0)
+            {
+                PointF fromTilePoint = WorldToTilePos(fromCoords.Longitude, fromCoords.Latitude, zoomLevel);
+                PointF toTilePoint = WorldToTilePos(toCoords.Longitude, toCoords.Latitude, zoomLevel);
 
-            // Convert PointF to integer tile coordinates using rounding to improve accuracy
-            int tileX = (int)Math.Round(tilePoint.X);
-            int tileY = (int)Math.Round(tilePoint.Y);
+                if ((int)fromTilePoint.X == (int)toTilePoint.X && (int)fromTilePoint.Y == (int)toTilePoint.Y)
+                {
+                    int tileX = (int)fromTilePoint.X;
+                    int tileY = (int)fromTilePoint.Y;
+                    return (tileX, tileY, zoomLevel);
+                }
+                zoomLevel--;
+            }
 
-            return (tileX, tileY, zoomLevel);
-        }
-
-
-        private (double Latitude, double Longitude) CalculateGeographicMidpoint((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords)
-        {
-            double midLatitude = (fromCoords.Latitude + toCoords.Latitude) / 2;
-            double midLongitude = (fromCoords.Longitude + toCoords.Longitude) / 2;
-            return (midLatitude, midLongitude);
-        }
-
-        private double CalculateGeographicalSpanInMeters((double Latitude, double Longitude) fromCoords, (double Latitude, double Longitude) toCoords, double latitudeRad)
-        {
-            // Average Earth circumference in meters
-            const double earthCircumference = 40075016.686;
-
-            // Differences in degrees
-            double latDiff = Math.Abs(fromCoords.Latitude - toCoords.Latitude);
-            double lonDiff = Math.Abs(fromCoords.Longitude - toCoords.Longitude);
-
-            // Calculate span for the widest dimension
-            double latSpan = latDiff * earthCircumference / 360.0;
-            double lonSpan = lonDiff * earthCircumference * Math.Cos(latitudeRad) / 360.0;
-
-            // Return the maximum span in meters
-            return Math.Max(latSpan, lonSpan);
+            return (-1, -1, -1);
         }
 
 
@@ -262,7 +260,6 @@ namespace TourPlanner.UI
                         1.0 / Math.Cos(lat * Math.PI / 180.0)) / Math.PI) / 2.0 * (1 << zoom));
             return p;
         }
-
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

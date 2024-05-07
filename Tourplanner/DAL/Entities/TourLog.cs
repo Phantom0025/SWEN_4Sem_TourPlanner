@@ -32,6 +32,7 @@ namespace Tourplanner.DAL.Entities
         public TimeSpan TotalTime { get; set; }
 
         public double Rating { get; set; }
+
     }
 
 }

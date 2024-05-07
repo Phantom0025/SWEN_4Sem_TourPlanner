@@ -168,6 +168,7 @@ namespace TourPlanner.UI
                 log.Info("Deleted tour: {0}", SelectedTour.Name);
                 _tourService.DeleteTour(SelectedTour.TourId);
                 Tours.Remove(SelectedTour);
+                FilterTours();
             }
         }
 

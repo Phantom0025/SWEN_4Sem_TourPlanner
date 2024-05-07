@@ -13,34 +13,36 @@ namespace Tourplanner.DAL.Entities
 {
     public class Tour : INotifyPropertyChanged
     {
+        public Tour() { }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid TourId { get; set; }
 
         [Required]
         [MaxLength(255)]
-        public required string Name { get; set; }
+        public string Name { get; set; }
 
         [Required]
-        public required string Description { get; set; }
+        public string Description { get; set; }
 
         [Required]
-        public required string From { get; set; }
+        public string From { get; set; }
 
         [Required]
-        public required string To { get; set; }
+        public string To { get; set; }
 
         [Required]
-        public required string TransportType { get; set; }
+        public string TransportType { get; set; }
 
         [Required]
-        public required double Distance { get; set; }
+        public double Distance { get; set; }
 
         [Required]
-        public required TimeSpan EstimatedTime { get; set; }
+        public TimeSpan EstimatedTime { get; set; }
 
         [Required]
-        public required string MapPath { get; set; }
+        public string MapPath { get; set; }
 
         public ObservableCollection<TourLog> TourLogs = new ObservableCollection<TourLog>();
 
