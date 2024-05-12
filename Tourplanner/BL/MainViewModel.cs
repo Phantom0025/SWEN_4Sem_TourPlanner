@@ -34,10 +34,12 @@ namespace TourPlanner.UI
         public MainViewModel(AppDbContext dbContext, ITourService tourService, ITourLogService tourLogService)
         {
             _dbContext = dbContext;
-            Tours = new ObservableCollection<Tour>(_dbContext.Tours.Include(t => t.TourLogs).ToList());
+            //Tours = new ObservableCollection<Tour>(_dbContext.Tours.Include(t => t.TourLogs).ToList());
 
             _tourService = tourService;
             _tourLogService = tourLogService;
+
+            Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
 
             AddTourCommand = new RelayCommand(AddTourExecute);
             DeleteTourCommand = new RelayCommand(DeleteTourExecute);
