@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <Authors>$(TourPlanner)</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +35,10 @@
 
   <ItemGroup>
     <Folder Include="tiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="TourPlanner" />
   </ItemGroup>
 
 </Project>
