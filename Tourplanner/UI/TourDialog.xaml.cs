@@ -67,6 +67,7 @@ namespace TourPlanner.UI
 
             try
             {
+                AddButton.IsEnabled = false;
                 bool success;
 
                 bool fromToChanged = Result == null || txtFrom.Text != Result.From || txtTo.Text != Result.To;
@@ -121,6 +122,7 @@ namespace TourPlanner.UI
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to retrieve tour details: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                AddButton.IsEnabled = true;
             }
         }
 
