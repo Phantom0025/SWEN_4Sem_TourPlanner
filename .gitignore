@@ -400,5 +400,5 @@ FodyWeavers.xsd
 
 
 # Others
-*.png
+tiles/
 launchSettings.json
