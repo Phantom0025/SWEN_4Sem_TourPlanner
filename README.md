@@ -1,39 +1,31 @@
-# SWEN 4 Tourplanner
+# SWEN 4 Tourplanner 
 
-## Technische Schritte & Entscheidungen
-Aufgrund unserer anfänglichen Unsicherheit bezüglich des MVVM-Patterns haben wir mit der Erstellung der View und des ViewModels begonnen, um die grundlegenden Prinzipien dieses Patterns zu erfüllen. Dabei ist das "MainViewModel" immer umfangreicher geworden, und wir vermuten, dass es eigentlich aufgeteilt werden sollte.
+## Technical Steps & Decisions
+Due to our initial uncertainty regarding the MVVM pattern, we started by creating the View and the ViewModel to meet the basic principles of this pattern. In the process, the "MainViewModel" became increasingly complex, and we suspect that it should actually be split up.
 
-Anschließend haben wir die View und das ViewModel mittels Bindings verknüpft, die Models in die entsprechende Ordnerstruktur eingefügt und das Entity Framework eingebunden. Danach haben wir die Verbindung zur Datenbank hergestellt. Im Zuge dessen haben wir die Datei "launchSettings.json" als Projekteigenschaft erstellt, um Variablen wie den Datenbank-Connection-String, API-Schlüssel oder den Pfad zum Ordner mit den Tiles zu hinterlegen.
+Subsequently, we linked the View and the ViewModel using bindings, inserted the models into the appropriate folder structure, and integrated the Entity Framework. After that, we established the connection to the database. In the course of this, we created the "launchSettings.json" file as a project property to store variables such as the database connection string, API keys, or the path to the folder with the tiles.
 
-Als nächstes haben wir einfache Dialoge zum Anlegen und Ändern von Touren und Tourlogs erstellt.
+Next, we created simple dialogs for creating and modifying tours and tour logs.
 
-Daraufhin haben wir den TourService und TourLogService implementiert, um eine Schichtung (Layering) zu erreichen und die Übersichtlichkeit des Codes zu erhöhen. Im Anschluss daran haben wir die Import- und Exportfunktionalitäten umgesetzt, da diese auf den frisch ausgelagerten Funktionen basieren.
+Then, we implemented the TourService and TourLogService to achieve layering and increase code clarity. Following this, we implemented the import and export functionalities, as these are based on the newly outsourced functions.
 
-Schließlich haben wir die Suche implementiert.
+Finally, we implemented the search feature.
 
 ## Unit Tests
+The unit tests were selected to verify and test the basic functionalities of the models, as they are important components of the application. They test that the classes are properly initialized, have correct default values, and that their methods deliver the expected results. The successful instantiation of Tour and TourLog is fundamental for the use of these classes in the application. Furthermore, it ensures that the Tour and TourLog classes can be instantiated properly with default values and that these values meet expectations.
 
-Die Unit-Tests wurden ausgewählt, um die grundlegenden Funktionalitäten des Models zu überprüfen und zu testen, da sie wichtige Bestandteile der Anwendung darstellen. Sie testen, dass die Klassen richtig initialisiert werden, korrekte Standardwerte haben und ihre Methoden die erwarteten Ergebnisse liefern. Die erfolgreiche Instanziierung von `Tour` und `TourLog` ist grundlegend für die Verwendung dieser Klassen in der Anwendung. Des Weiteren wird sichergestellt, dass die Klassen `Tour` und `TourLog` ordnungsgemäß mit Standardwerten instanziiert werden können und dass diese Werte den Erwartungen entsprechen. 
-
-## Tracked time
-
-Insgesamt haben wir für zusammen für das Projekt 30 Stunden gebraucht
+## Tracked Time
+In total, we spent 30 hours together on the project.
 
 ## Wireframe
+Tourplanner_wireframe.png
 
-![Tourplanner_wireframe](img\WireframeTourplanner.png)
+The UX mainly consists of a popup that includes all the basic displays. At the top, you can search for tours and tour logs that have been created using the search bar. For tours, you can press the "+", "-", and "..." buttons. Pressing "+" brings up a new popup "TourDialog". Here, you can enter all the necessary information. Then the entry will be displayed in Tours. By clicking on "...", you can edit the tour entry. In the field to the right of Tours, you can see more detailed information about the selected tour, including the map showing the route between the two destinations. Finally, there is the field at the bottom right for Tour Logs. Here, you can also click the same buttons as for Tours. Clicking "+" brings up the "TourLogDialog" popup on the far right.
 
-Die UX besteht hauptsächlich aus einem Popup, welches alle Grundanzeigen beinhaltet. Oben kann man in der Suchleiste nach den Touren und den TourLogs suchen, welche erstellt wurden. Bei Tours kann man auf die Buttons "+","-" und "..." drücken. Beim Drücken auf "+" entsteht ein neues Popup "TourDialog". Hier kann man alle notwendigen Informationen angeben. Danach wird der Eintrag in Tours angezeigt. Beim Klick auf "...", kann man den Tour-Eintrag editieren
-Im Feld rechts neben Tours, sieht man genauere Informationen, zu dem ausgewählten Tour. Darunter zählt unteranderem die Karte, die den Weg zwischen den zwei Destinationen angibt.
-Zuletzt gibt es das Feld unten rechts Tour Logs. Hier kann man auch auf die gleichen Buttons, wie bei Tours klicken. Beim Klick auf "+" entsteht das Popup "TourLogDialog" ganz rechts.  
-
-Uns war es wichtig, eine übersichtliche, simple und verständliche UX zu erstellen, damit man sich gut auskennt und zurechtfindet.
+It was important to us to create a clear, simple, and understandable UX so that users can easily familiarize themselves and navigate through the application.
 
 ## Git Repo Link
-
 https://github.com/Phantom0025/SWEN_4Sem_TourPlanner
 
 ## Feedback
-Haben wir das MVVM-Pattern korrekt implementiert oder zumindest so, dass der Punkt "Required" als erfüllt gilt?
-Muss die Suche in Postgres implementiert werden? (In den Anforderungen wird dies nicht spezifiziert.)
-Zählt unsere Aufteilung als Layer based architecture?
+Have we implemented the MVVM pattern correctly or at least in a way that meets the "Required" criterion? Does the search need to be implemented in Postgres? (This is not specified in the requirements.) Does our structure count as a layer-based architecture?
