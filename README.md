@@ -18,7 +18,7 @@ The unit tests were selected to verify and test the basic functionalities of the
 In total, we spent 30 hours together on the project.
 
 ## Wireframe
-Tourplanner_wireframe.png
+![WireframeTourplanner](https://github.com/Phantom0025/SWEN_4Sem_TourPlanner/assets/73280704/abb110e0-0ef6-44e5-bd3b-0a2d73cadd9c)
 
 The UX mainly consists of a popup that includes all the basic displays. At the top, you can search for tours and tour logs that have been created using the search bar. For tours, you can press the "+", "-", and "..." buttons. Pressing "+" brings up a new popup "TourDialog". Here, you can enter all the necessary information. Then the entry will be displayed in Tours. By clicking on "...", you can edit the tour entry. In the field to the right of Tours, you can see more detailed information about the selected tour, including the map showing the route between the two destinations. Finally, there is the field at the bottom right for Tour Logs. Here, you can also click the same buttons as for Tours. Clicking "+" brings up the "TourLogDialog" popup on the far right.
 
