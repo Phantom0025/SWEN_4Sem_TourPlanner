@@ -23,6 +23,13 @@ namespace Tourplanner_test
             tour.Name = "moin";
             ClassicAssert.NotNull(tour.Name);
         }
+        [Test]
+        public void Tour_Null()
+        {
+            var tour = new Tour();
+            tour.Name = null;
+            ClassicAssert.Null(tour.Name);
+        }
 
         [Test]
         public void TourLog_CanBeInstantiated()
@@ -43,6 +50,17 @@ namespace Tourplanner_test
 
             ClassicAssert.AreEqual(2, popularity);
         }
+        [Test]
+        public void Popularity_ReturnsWrongValue()
+        {
+            var tour = new Tour();
+            tour.TourLogs.Add(new TourLog());
+            tour.TourLogs.Add(new TourLog());
+
+            var popularity = tour.Popularity;
+
+            ClassicAssert.AreNotEqual(3, popularity);
+        }
 
         [Test]
         public void AverageRating_ReturnsCorrectValue_WhenTourLogsExist()
@@ -55,6 +73,18 @@ namespace Tourplanner_test
             var averageRating = tour.AverageRating;
 
             ClassicAssert.AreEqual(4, averageRating);
+        }
+        [Test]
+        public void WrongAverageRating_ReturnsCorrectValue_WhenTourLogsExist()
+        {
+            var tour = new Tour();
+            tour.TourLogs.Add(new TourLog { Rating = 3 });
+            tour.TourLogs.Add(new TourLog { Rating = 4 });
+            tour.TourLogs.Add(new TourLog { Rating = 5 });
+
+            var averageRating = tour.AverageRating;
+
+            ClassicAssert.AreNotEqual(5, averageRating);
         }
 
         [Test]
@@ -97,6 +127,20 @@ namespace Tourplanner_test
             var tour = new Tour();
 
             ClassicAssert.AreEqual(0, tour.Popularity);
+        }
+        [Test]
+        public void TourPopularity_Returns1()
+        {
+            var tour = new Tour();
+            tour.Name = "Test1";
+            ClassicAssert.AreEqual("Test1", tour.Name);
+        }
+        [Test]
+        public void TourName_ReturnsCorrectLength()
+        {
+            var tour = new Tour();
+            tour.Name = "Test1";
+            ClassicAssert.AreEqual(5, tour.Name.Length);
         }
 
         [Test]
