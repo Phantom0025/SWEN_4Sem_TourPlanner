@@ -30,6 +30,10 @@
                 <MenuItem Command="{Binding ImportCommand}" Header="Import" />
                 <MenuItem Command="{Binding ExportCommand}" Header="Export" />
             </MenuItem>
+            <MenuItem Header="Report">
+                <MenuItem Command="{Binding ReportTours}" Header="Report Tours" />
+                <MenuItem Command="{Binding ReportTourLogs}" Header="Report TourLogs" />
+            </MenuItem>
             <MenuItem Header="Edit">
                 <MenuItem Header="Undo" />
                 <MenuItem Header="Redo" />

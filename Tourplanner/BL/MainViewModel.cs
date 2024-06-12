@@ -31,6 +31,9 @@ namespace TourPlanner.UI
         public ICommand ImportCommand { get; private set; }
         public ICommand ExportCommand { get; private set; }
 
+        public ICommand ReportTours { get; private set; }
+        public ICommand ReportTourLogs { get; private set; }
+
         public MainViewModel(AppDbContext dbContext, ITourService tourService, ITourLogService tourLogService)
         {
             _dbContext = dbContext;
@@ -51,6 +54,9 @@ namespace TourPlanner.UI
 
             ImportCommand = new RelayCommand(ImportExecute);
             ExportCommand = new RelayCommand(ExportExecute);
+
+            ReportTours = new RelayCommand(ReportToursExecute);
+            ReportTourLogs = new RelayCommand(ReportTourLogsExecute);
         }
 
         private string _searchText;
@@ -142,6 +148,46 @@ namespace TourPlanner.UI
             else
             {
                 log.Info("Export cancelled by user.");
+            }
+        }
+
+        private void ReportToursExecute(object parameter)
+        {
+            log.Info("Generating tours report");
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf|All files (*.*)|*.*",
+                Title = "Generate Tours Report"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _tourService.GenerateToursReport(saveFileDialog.FileName);
+            }
+            else
+            {
+                log.Info("Report generation cancelled by user.");
+            }
+        }
+
+        private void ReportTourLogsExecute(object parameter)
+        {
+            log.Info("Generating tour logs report");
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf|All files (*.*)|*.*",
+                Title = "Generate Tour Logs Report"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _tourLogService.GenerateTourLogsReport(saveFileDialog.FileName);
+            }
+            else
+            {
+                log.Info("Report generation cancelled by user.");
             }
         }
 
