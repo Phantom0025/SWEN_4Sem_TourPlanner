@@ -47,6 +47,9 @@ namespace TourPlanner.UI
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
+            // Initialize LanguageFilter
+            LanguageFilter languageFilter = new LanguageFilter();
+
             if (datePickerDate.SelectedDate == null)
             {
                 MessageBox.Show("Please select a date.", "Missing Information", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -84,6 +87,13 @@ namespace TourPlanner.UI
                 return;
             }
 
+            // Check for offensive words in the comment
+            if (languageFilter.ContainsOffensiveWords(txtComment.Text))
+            {
+                MessageBox.Show("The comment contains offensive language. Please revise your comment.", "Offensive Language Detected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             // Update or create a new Tour Log object with the input data
             Result = new TourLog
             {
@@ -98,6 +108,7 @@ namespace TourPlanner.UI
             this.DialogResult = true;
             this.Close();
         }
+
 
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
