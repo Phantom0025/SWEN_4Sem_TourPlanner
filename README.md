@@ -34,8 +34,8 @@ We continued using nUnit for unit tests, as we had in our previous project.
 For PDF generation, we selected iText7 because it was the top result in my search engine.
 
 #### Honorable Mentions:
-Npgsql for the PostgreSQL database in conjunction with the ORM.
-Newtonsoft.Json for de/serializing classes in the export functionality.
+- Npgsql for the PostgreSQL database in conjunction with the ORM.
+- Newtonsoft.Json for de/serializing classes in the export functionality.
 
 
 ## Git Repo Link
