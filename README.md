@@ -24,6 +24,20 @@ The UX mainly consists of a popup that includes all the basic displays. At the t
 
 It was important to us to create a clear, simple, and understandable UX so that users can easily familiarize themselves and navigate through the application.
 
+## Mandatory Unique Feature
+Language Filter for Tour comments: try typing "badword1" :). This filter can be customized in the code to block additional words.
+
+## Library Decisions
+As our OR Mapper, we chose Microsoft's Entity Framework because it's a well-established option with a supportive community and numerous Stack Overflow posts to help us troubleshoot errors.
+For logging, we opted for NLog since we couldn't get log4net to work properly.
+We continued using nUnit for unit tests, as we had in our previous project.
+For PDF generation, we selected iText7 because it was the top result in my search engine.
+
+#### Honorable Mentions:
+Npgsql for the PostgreSQL database in conjunction with the ORM.
+Newtonsoft.Json for de/serializing classes in the export functionality.
+
+
 ## Git Repo Link
 https://github.com/Phantom0025/SWEN_4Sem_TourPlanner
 
