@@ -15,7 +15,7 @@ Finally, we implemented the search feature.
 The unit tests were selected to verify and test the basic functionalities of the models, as they are important components of the application. They test that the classes are properly initialized, have correct default values, and that their methods deliver the expected results. The successful instantiation of Tour and TourLog is fundamental for the use of these classes in the application. Furthermore, it ensures that the Tour and TourLog classes can be instantiated properly with default values and that these values meet expectations.
 
 ## Tracked Time
-In total, we spent 30 hours together on the project.
+In total, we spent 40 hours together on the project.
 
 ## Wireframe
 ![WireframeTourplanner](https://github.com/Phantom0025/SWEN_4Sem_TourPlanner/assets/73280704/abb110e0-0ef6-44e5-bd3b-0a2d73cadd9c)
